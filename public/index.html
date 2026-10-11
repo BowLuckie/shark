@@ -2,97 +2,124 @@
 <html lang="en-us">
 
 <head>
-<script>
-(function () {
-  var BIG = 1000000000;
-  function fix(o) { o.ADS_OFF = true; o.OFF_ADS_TIME = BIG; return o; }
-  try {
-    var a = localStorage.getItem("savesData");
-    if (a) localStorage.setItem("savesData", JSON.stringify(fix(JSON.parse(a))));
-    var b = localStorage.getItem("yg_saves");
-    if (b) {
-      var y = JSON.parse(b);
-      y.saves = (y.saves || []).map(function (x) { return JSON.stringify(fix(JSON.parse(x))); });
-      localStorage.setItem("yg_saves", JSON.stringify(y));
-    }
-  } catch (e) { console.warn("ads patch failed", e); }
-})();
-</script>
+  <script>
+    (function () {
+      var BIG = 1000000000;
+      function fix(o) {o.ADS_OFF = true; o.OFF_ADS_TIME = BIG; return o;}
+      try {
+        var a = localStorage.getItem("savesData");
+        if (a) localStorage.setItem("savesData", JSON.stringify(fix(JSON.parse(a))));
+        var b = localStorage.getItem("yg_saves");
+        if (b) {
+          var y = JSON.parse(b);
+          y.saves = (y.saves || []).map(function (x) {return JSON.stringify(fix(JSON.parse(x)));});
+          localStorage.setItem("yg_saves", JSON.stringify(y));
+        }
+      } catch (e) {console.warn("ads patch failed", e);}
+    })();
+  </script>
 
-<style>
-#load-log { position: fixed; left: 50%; bottom: 3vh; transform: translateX(-50%); width: min(94vw, 900px); height: 35vh; overflow-y: auto; box-sizing: border-box; padding: .5em .75em; text-align: left; background: #1d2021; border: 1px solid #3c3836; border-radius: 4px; font: 13px/1.4 monospace; color: #a89984; z-index: 10; }
-#load-log div { white-space: pre-wrap; word-break: break-all; }
-#load-log .warn { color: #fabd2f; }
-#load-log .error { color: #fb4934; }
-</style>
-<script>
-(function () {
-  var buf = [], box = null, MAX = 5000;
-  function fmt(a) {
-    return Array.prototype.map.call(a, function (x) {
-      if (x instanceof Error) return x.message;
-      if (typeof x === "object") { try { return JSON.stringify(x); } catch (e) { return String(x); } }
-      return String(x);
-    }).join(" ");
-  }
-  function add(level, text) {
-    var line = { level: level, text: text }; if (text.indexOf("Game Ready") !== -1 && !window.__gameReady) window.__gameReady = Date.now();
-    if (!box) { buf.push(line); if (buf.length > MAX) buf.shift(); return; }
-    draw(line);
-  }
-  function stick() {
-    if (!box) return;
-    box.scrollTop = box.scrollHeight;
-    requestAnimationFrame(function () { box.scrollTop = box.scrollHeight; });
-  }
-  function draw(line) {
-    var d = document.createElement("div");
-    d.className = line.level;
-    d.textContent = line.text;
-    box.appendChild(d);
-    while (box.children.length > MAX) box.removeChild(box.firstChild);
-    stick();
-  }
-  ["log", "info", "warn", "error", "debug", "trace", "dir", "table"].forEach(function (lv) {
-    var orig = console[lv];
-    console[lv] = function () {
-      try { add((lv === "warn" || lv === "error") ? lv : "log", fmt(arguments)); } catch (e) {}
-      return orig.apply(console, arguments);
-    };
-  });
-  window.addEventListener("error", function (e) { add("error", "ERR " + e.message); });
-  window.addEventListener("unhandledrejection", function (e) {
-    add("error", "REJECT " + (e.reason && e.reason.message || e.reason));
-  });
-  window.addEventListener("error", function (e) {
-    var t = e.target;
-    if (t && t !== window && (t.src || t.href)) add("error", "LOAD FAIL " + (t.src || t.href));
-  }, true);
-  var ofetch = window.fetch;
-  if (ofetch) window.fetch = function (u) {
-    var url = ((u && u.url) || String(u)).slice(0, 120);
-    return ofetch.apply(this, arguments).then(function (r) {
-      add(r.ok ? "log" : "error", "fetch " + r.status + " " + url);
-      return r;
-    }, function (e) {
-      add("error", "fetch FAILED " + url);
-      throw e;
-    });
-  };
-  function mount() {
-    var host = document.getElementById("loading-cover") || document.body;
-    if (!host) return;
-    box = document.createElement("div");
-    box.id = "load-log";
-    host.appendChild(box);
-    if (window.ResizeObserver) new ResizeObserver(stick).observe(box);
-    buf.forEach(draw);
-    buf = [];
-  }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
-  else mount();
-})();
-</script>
+  <style>
+    #load-log {
+      position: fixed;
+      left: 50%;
+      bottom: 3vh;
+      transform: translateX(-50%);
+      width: min(94vw, 900px);
+      height: 35vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+      padding: .5em .75em;
+      text-align: left;
+      background: #1d2021;
+      border: 1px solid #3c3836;
+      border-radius: 4px;
+      font: 13px/1.4 monospace;
+      color: #a89984;
+      z-index: 10;
+    }
+
+    #load-log div {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    #load-log .warn {
+      color: #fabd2f;
+    }
+
+    #load-log .error {
+      color: #fb4934;
+    }
+  </style>
+  <script>
+    (function () {
+      var buf = [], box = null, MAX = 5000;
+      function fmt(a) {
+        return Array.prototype.map.call(a, function (x) {
+          if (x instanceof Error) return x.message;
+          if (typeof x === "object") {try {return JSON.stringify(x);} catch (e) {return String(x);} }
+          return String(x);
+        }).join(" ");
+      }
+      function add(level, text) {
+        var line = {level: level, text: text}; if (text.indexOf("Game Ready") !== -1 && !window.__gameReady) window.__gameReady = Date.now();
+        if (!box) {buf.push(line); if (buf.length > MAX) buf.shift(); return;}
+        draw(line);
+      }
+      function stick() {
+        if (!box) return;
+        box.scrollTop = box.scrollHeight;
+        requestAnimationFrame(function () {box.scrollTop = box.scrollHeight;});
+      }
+      function draw(line) {
+        var d = document.createElement("div");
+        d.className = line.level;
+        d.textContent = line.text;
+        box.appendChild(d);
+        while (box.children.length > MAX) box.removeChild(box.firstChild);
+        stick();
+      }
+      ["log", "info", "warn", "error", "debug", "trace", "dir", "table"].forEach(function (lv) {
+        var orig = console[lv];
+        console[lv] = function () {
+          try {add((lv === "warn" || lv === "error") ? lv : "log", fmt(arguments));} catch (e) { }
+          return orig.apply(console, arguments);
+        };
+      });
+      window.addEventListener("error", function (e) {add("error", "ERR " + e.message);});
+      window.addEventListener("unhandledrejection", function (e) {
+        add("error", "REJECT " + (e.reason && e.reason.message || e.reason));
+      });
+      window.addEventListener("error", function (e) {
+        var t = e.target;
+        if (t && t !== window && (t.src || t.href)) add("error", "LOAD FAIL " + (t.src || t.href));
+      }, true);
+      var ofetch = window.fetch;
+      if (ofetch) window.fetch = function (u) {
+        var url = ((u && u.url) || String(u)).slice(0, 120);
+        return ofetch.apply(this, arguments).then(function (r) {
+          add(r.ok ? "log" : "error", "fetch " + r.status + " " + url);
+          return r;
+        }, function (e) {
+          add("error", "fetch FAILED " + url);
+          throw e;
+        });
+      };
+      function mount() {
+        var host = document.getElementById("loading-cover") || document.body;
+        if (!host) return;
+        box = document.createElement("div");
+        box.id = "load-log";
+        host.appendChild(box);
+        if (window.ResizeObserver) new ResizeObserver(stick).observe(box);
+        buf.forEach(draw);
+        buf = [];
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
+      else mount();
+    })();
+  </script>
 
   <meta charset="utf-8" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -135,16 +162,42 @@
       display: none !important
     }
   </style>
-<style>
-#loading-cover { background: #282828 !important; color: #ebdbb2; font-family: monospace; }
-#unity-logo { text-align: center; }
-#game-title { margin: 0 0 .5em; font-size: 2rem; font-weight: normal; letter-spacing: .1em; color: #fabd2f; }
-#load-pct { color: #a89984; margin-bottom: .5em; }
-#unity-progress-bar-empty { background: #3c3836 !important; border-radius: 4px; overflow: hidden; }
-#unity-progress-bar-full { background: #fe8019 !important; }
-</style>
-<link rel="icon" href="data:,">
-<title>Shrek Neighbor</title>
+  <style>
+    #loading-cover {
+      background: #282828 !important;
+      color: #ebdbb2;
+      font-family: monospace;
+    }
+
+    #unity-logo {
+      text-align: center;
+    }
+
+    #game-title {
+      margin: 0 0 .5em;
+      font-size: 2rem;
+      font-weight: normal;
+      letter-spacing: .1em;
+      color: #fabd2f;
+    }
+
+    #load-pct {
+      color: #a89984;
+      margin-bottom: .5em;
+    }
+
+    #unity-progress-bar-empty {
+      background: #3c3836 !important;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    #unity-progress-bar-full {
+      background: #fe8019 !important;
+    }
+  </style>
+  <link rel="icon" href="data:,">
+  <title>Shrek Neighbor</title>
 </head>
 
 <body class="dark">
@@ -153,7 +206,10 @@
   </div>
   <div id="loading-cover" style="display:none;">
     <div id="unity-loading-bar">
-      <div id="unity-logo"><h1 id="game-title">Shrek Neighbor</h1><div id="load-pct"></div></div>
+      <div id="unity-logo">
+        <h1 id="game-title">Shrek Neighbor</h1>
+        <div id="load-pct"></div>
+      </div>
       <div id="unity-progress-bar-empty" style="display: none;">
         <div id="unity-progress-bar-full"></div>
       </div>
@@ -492,7 +548,7 @@
           progressBarFull.style.width = (100 * progress) + "%"; var pc = document.getElementById("load-pct"); if (pc) pc.textContent = Math.round(100 * progress) + "%";
         }).then(function (unityInstance) {
           window.myGameInstance = unityInstance;
-          (function () { var t0 = Date.now(); (function chk() { if ((window.__gameReady && Date.now() - window.__gameReady > 1500) || Date.now() - t0 > 20000) { loadingCover.style.background = ""; loadingCover.style.display = "none"; } else setTimeout(chk, 250); })(); })();
+          (function () {var t0 = Date.now(); (function chk() {if ((window.__gameReady && Date.now() - window.__gameReady > 1500) || Date.now() - t0 > 20000) {loadingCover.style.background = ""; loadingCover.style.display = "none";} else setTimeout(chk, 250);})();})();
           window.FocusGame();
         }).catch(function (message) {
           console.error(message);
