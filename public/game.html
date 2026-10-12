@@ -212,28 +212,32 @@
       z-index: 30;
       pointer-events: none;
       backdrop-filter: blur(6px);
-      transition: opacity .3s ease;
+      opacity: 0;
+      transition: transform .3s ease, opacity .3s ease;
+      will-change: transform, opacity;
     }
 
     .site-header.overlay {
       top: 0;
+      transform: translateY(-100%);
       background: linear-gradient(rgba(40, 40, 40, .92), rgba(40, 40, 40, .5));
     }
 
     .site-footer.overlay {
       bottom: 0;
+      transform: translateY(100%);
       background: linear-gradient(rgba(40, 40, 40, .5), rgba(40, 40, 40, .92));
+    }
+
+    .site-header.overlay.is-visible,
+    .site-footer.overlay.is-visible {
+      transform: translateY(0);
+      opacity: 1;
     }
 
     .site-header.overlay a,
     .site-footer.overlay a {
       pointer-events: auto;
-    }
-
-    body.is-fullscreen .site-header.overlay,
-    body.is-fullscreen .site-footer.overlay {
-      opacity: 0;
-      pointer-events: none;
     }
   </style>
   <link rel="icon" href="data:,">
@@ -241,7 +245,7 @@
 </head>
 
 <body class="dark">
-  <header class="site-header overlay">
+  <header class="site-header overlay is-visible">
     <nav class="site-nav">
       <a class="brand" href="./">shrek neighbor</a>
       <a href="game.html" aria-current="page">play</a>
@@ -1214,7 +1218,7 @@
     })();
   </script>
 
-  <footer class="site-footer overlay">
+  <footer class="site-footer overlay is-visible">
     <span>&copy; 2026 Bowie Luckie</span>
     <span class="dot">·</span>
     <span>MIT licensed</span>
@@ -1229,11 +1233,68 @@
 
   <script>
     (function () {
-      function sync() {
-        document.body.classList.toggle("is-fullscreen", !!document.fullscreenElement);
+      var bars = [
+        {el: document.querySelector(".site-header.overlay"), edge: "top"},
+        {el: document.querySelector(".site-footer.overlay"), edge: "bottom"}
+      ].filter(function (b) {return b.el;});
+      if (!bars.length) return;
+
+      var EDGE = 90;         // how close to the edge the cursor must get (px)
+      var HIDE_DELAY = 450;  // ms to wait before sliding back out
+      var timers = new WeakMap();
+
+      function show(b) {
+        var t = timers.get(b.el);
+        if (t) {clearTimeout(t); timers.delete(b.el);}
+        b.el.classList.add("is-visible");
       }
-      document.addEventListener("fullscreenchange", sync);
-      sync();
+
+      function hide(b) {
+        if (timers.get(b.el)) return;
+        timers.set(b.el, setTimeout(function () {
+          b.el.classList.remove("is-visible");
+          timers.delete(b.el);
+        }, HIDE_DELAY));
+      }
+
+      function atEdge(b, y) {
+        return b.edge === "top" ? y <= EDGE : (window.innerHeight - y) <= EDGE;
+      }
+
+      function onPoint(y) {
+        bars.forEach(function (b) {atEdge(b, y) ? show(b) : hide(b);});
+      }
+
+      window.addEventListener("pointermove", function (e) {
+        if (e.pointerType === "touch") return; // touch fires no hover moves
+        onPoint(e.clientY);
+      }, {passive: true});
+
+      window.addEventListener("touchstart", function (e) {
+        if (e.touches.length) onPoint(e.touches[0].clientY);
+      }, {passive: true});
+
+      // stay put while a bar's own link is hovered or focused
+      bars.forEach(function (b) {
+        Array.prototype.forEach.call(b.el.querySelectorAll("a"), function (a) {
+          a.addEventListener("pointerenter", function () {show(b);});
+          a.addEventListener("focus", function () {show(b);});
+        });
+      });
+
+      // while the pointer is locked the cursor is unusable: keep bars hidden
+      document.addEventListener("pointerlockchange", function () {
+        if (document.pointerLockElement) {
+          bars.forEach(function (b) {
+            var t = timers.get(b.el);
+            if (t) {clearTimeout(t); timers.delete(b.el);}
+            b.el.classList.remove("is-visible");
+          });
+        }
+      });
+
+      // they start shown, then the first cursor move settles them
+      bars.forEach(show);
     })();
   </script>
 </body>
