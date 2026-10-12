@@ -2,22 +2,7 @@
 <html lang="en-us">
 
 <head>
-  <script>
-    (function () {
-      var BIG = 1000000000;
-      function fix(o) {o.ADS_OFF = true; o.OFF_ADS_TIME = BIG; return o;}
-      try {
-        var a = localStorage.getItem("savesData");
-        if (a) localStorage.setItem("savesData", JSON.stringify(fix(JSON.parse(a))));
-        var b = localStorage.getItem("yg_saves");
-        if (b) {
-          var y = JSON.parse(b);
-          y.saves = (y.saves || []).map(function (x) {return JSON.stringify(fix(JSON.parse(x)));});
-          localStorage.setItem("yg_saves", JSON.stringify(y));
-        }
-      } catch (e) {console.warn("ads patch failed", e);}
-    })();
-  </script>
+  <script src="save-fix.js"></script>
 
   <style>
     #load-log {
@@ -238,6 +223,27 @@
     .site-header.overlay a,
     .site-footer.overlay a {
       pointer-events: auto;
+    }
+
+    /* while the game is actually running the header shrinks out of the way */
+    body.is-playing .site-header.overlay {
+      padding: .2rem .75rem;
+    }
+
+    body.is-playing .site-header.overlay .site-nav {
+      font-size: .72rem;
+      gap: .15rem .85rem;
+    }
+
+    body.is-playing .site-header.overlay .site-nav .brand {
+      letter-spacing: .05em;
+    }
+
+    /* ...and the footer stays out of the way entirely during play */
+    body.is-playing .site-footer.overlay {
+      opacity: 0;
+      transform: translateY(100%);
+      pointer-events: none;
     }
   </style>
   <link rel="icon" href="data:,">
@@ -601,7 +607,7 @@
           progressBarFull.style.width = (100 * progress) + "%"; var pc = document.getElementById("load-pct"); if (pc) pc.textContent = Math.round(100 * progress) + "%";
         }).then(function (unityInstance) {
           window.myGameInstance = unityInstance;
-          (function () {var t0 = Date.now(); (function chk() {if ((window.__gameReady && Date.now() - window.__gameReady > 1500) || Date.now() - t0 > 20000) {loadingCover.style.background = ""; loadingCover.style.display = "none";} else setTimeout(chk, 250);})();})();
+          (function () {var t0 = Date.now(); (function chk() {if ((window.__gameReady && Date.now() - window.__gameReady > 1500) || Date.now() - t0 > 20000) {loadingCover.style.background = ""; loadingCover.style.display = "none"; document.body.classList.add("is-playing");} else setTimeout(chk, 250);})();})();
           window.FocusGame();
         }).catch(function (message) {
           console.error(message);
@@ -1233,68 +1239,97 @@
 
   <script>
     (function () {
-      var bars = [
-        {el: document.querySelector(".site-header.overlay"), edge: "top"},
-        {el: document.querySelector(".site-footer.overlay"), edge: "bottom"}
-      ].filter(function (b) {return b.el;});
-      if (!bars.length) return;
+      var header = document.querySelector(".site-header.overlay");
+      var footer = document.querySelector(".site-footer.overlay");
+      if (!header && !footer) return;
 
-      var EDGE = 90;         // how close to the edge the cursor must get (px)
-      var HIDE_DELAY = 450;  // ms to wait before sliding back out
+      var EDGE_TOP = 80;      // reveal zone at the top (px)
+      var EDGE_BOTTOM = 120;  // reveal zone at the bottom (px)
+      var HIDE_DELAY = 450;   // ms before a bar slides back out
       var timers = new WeakMap();
 
-      function show(b) {
-        var t = timers.get(b.el);
-        if (t) {clearTimeout(t); timers.delete(b.el);}
-        b.el.classList.add("is-visible");
+      function show(el) {
+        if (!el) return;
+        var t = timers.get(el);
+        if (t) {clearTimeout(t); timers.delete(el);}
+        el.classList.add("is-visible");
       }
 
-      function hide(b) {
-        if (timers.get(b.el)) return;
-        timers.set(b.el, setTimeout(function () {
-          b.el.classList.remove("is-visible");
-          timers.delete(b.el);
+      function hide(el) {
+        if (!el || timers.get(el)) return;
+        timers.set(el, setTimeout(function () {
+          el.classList.remove("is-visible");
+          timers.delete(el);
         }, HIDE_DELAY));
       }
 
-      function atEdge(b, y) {
-        return b.edge === "top" ? y <= EDGE : (window.innerHeight - y) <= EDGE;
+      function hideNow(el) {
+        if (!el) return;
+        var t = timers.get(el);
+        if (t) {clearTimeout(t); timers.delete(el);}
+        el.classList.remove("is-visible");
       }
 
-      function onPoint(y) {
-        bars.forEach(function (b) {atEdge(b, y) ? show(b) : hide(b);});
+      // the game hides the cursor (pointer lock or cursor: none) while you play
+      function cursorHidden(x, y) {
+        if (document.pointerLockElement) return true;
+        if (x == null || y == null) return false;
+        var el = document.elementFromPoint(x, y);
+        return !!el && getComputedStyle(el).cursor === "none";
+      }
+
+      function playing() {
+        return document.body.classList.contains("is-playing");
+      }
+
+      function onPoint(x, y) {
+        var hidden = cursorHidden(x, y);
+
+        // header: top edge, but never while the cursor is hidden
+        if (!hidden && y <= EDGE_TOP) show(header);
+        else hide(header);
+
+        // footer: bottom edge, but never during gameplay
+        if (!playing() && y >= window.innerHeight - EDGE_BOTTOM) show(footer);
+        else hide(footer);
       }
 
       window.addEventListener("pointermove", function (e) {
-        if (e.pointerType === "touch") return; // touch fires no hover moves
-        onPoint(e.clientY);
+        if (e.pointerType === "touch") return; // touch never hovers
+        onPoint(e.clientX, e.clientY);
       }, {passive: true});
 
       window.addEventListener("touchstart", function (e) {
-        if (e.touches.length) onPoint(e.touches[0].clientY);
+        if (e.touches.length) onPoint(e.touches[0].clientX, e.touches[0].clientY);
       }, {passive: true});
 
       // stay put while a bar's own link is hovered or focused
-      bars.forEach(function (b) {
-        Array.prototype.forEach.call(b.el.querySelectorAll("a"), function (a) {
-          a.addEventListener("pointerenter", function () {show(b);});
-          a.addEventListener("focus", function () {show(b);});
+      [header, footer].forEach(function (bar) {
+        if (!bar) return;
+        Array.prototype.forEach.call(bar.querySelectorAll("a"), function (a) {
+          a.addEventListener("pointerenter", function () {show(bar);});
+          a.addEventListener("focus", function () {show(bar);});
         });
       });
 
-      // while the pointer is locked the cursor is unusable: keep bars hidden
+      // locked pointer = hidden cursor, so drop the header immediately
       document.addEventListener("pointerlockchange", function () {
         if (document.pointerLockElement) {
-          bars.forEach(function (b) {
-            var t = timers.get(b.el);
-            if (t) {clearTimeout(t); timers.delete(b.el);}
-            b.el.classList.remove("is-visible");
-          });
+          hideNow(header);
+          if (playing()) hideNow(footer);
         }
       });
 
+      // the moment gameplay starts, pull the footer away for good
+      if (window.MutationObserver) {
+        new MutationObserver(function () {
+          if (playing()) hideNow(footer);
+        }).observe(document.body, {attributes: true, attributeFilter: ["class"]});
+      }
+
       // they start shown, then the first cursor move settles them
-      bars.forEach(show);
+      show(header);
+      if (!playing()) show(footer);
     })();
   </script>
 </body>
