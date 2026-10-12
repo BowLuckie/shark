@@ -6,86 +6,117 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Shrek Neighbor</title>
   <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
   <style>
-    :root {
-      --bg: #282828;
-      --fg: #ebdbb2;
-      --mut: #a89984;
-      --pan: #3c3836;
-      --y: #fabd2f;
-      --o: #fe8019;
+    body.menu-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 1rem;
     }
 
-    html,
-    body {
-      height: 100%;
-      margin: 0;
+    .menu-page .site-header,
+    .menu-page .site-footer {
+      width: 100%;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font: 14px/1.5 monospace;
+    .menu-page .menu {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 1.5rem;
+      padding: 2rem 0;
     }
 
-    h1 {
-      color: var(--y);
+    .menu h1 {
       font-size: 2rem;
-      font-weight: normal;
+      font-weight: 500;
       letter-spacing: .1em;
       margin: 0;
     }
 
-    nav {
+    .menu-links {
       display: flex;
       flex-direction: column;
       gap: .75rem;
       width: min(90vw, 320px);
     }
 
-    a.btn {
+    .menu-links a.btn {
       display: block;
       text-align: center;
       text-decoration: none;
       color: var(--fg);
       background: var(--pan);
       border: 1px solid var(--mut);
-      border-radius: 4px;
+      border-radius: 6px;
       padding: .8em 1em;
       font-size: 1.1rem;
     }
 
-    a.btn:hover,
-    a.btn:focus {
+    .menu-links a.btn:hover,
+    .menu-links a.btn:focus-visible {
       border-color: var(--o);
       color: var(--o);
+      text-decoration: none;
       outline: none;
     }
 
-    a.btn kbd {
+    .menu-links a.btn kbd {
       color: var(--mut);
       margin-right: .6em;
+      font-family: inherit;
     }
 
     #info {
       color: var(--mut);
       min-height: 1.5em;
+      text-align: center;
     }
   </style>
 </head>
 
-<body>
-  <h1>Shrek Neighbor</h1>
-  <nav>
-    <a class="btn" href="game.html" id="play"><kbd>1</kbd>Play</a>
-    <a class="btn" href="saves.html" id="saves"><kbd>2</kbd>Save manager</a>
-  </nav>
-  <div id="info"></div>
+<body class="menu-page">
+  <header class="site-header">
+    <nav class="site-nav">
+      <a class="brand" href="./" aria-current="page">shrek neighbor</a>
+      <a href="game.html">play</a>
+      <a href="saves.html">saves</a>
+      <a href="about.html">about</a>
+    </nav>
+  </header>
+
+  <main class="menu">
+    <h1>Shrek Neighbor</h1>
+    <nav class="menu-links">
+      <a class="btn" href="game.html" id="play"><kbd>1</kbd>Play</a>
+      <a class="btn" href="saves.html" id="saves"><kbd>2</kbd>Save manager</a>
+      <a class="btn" href="about.html" id="about"><kbd>3</kbd>About</a>
+    </nav>
+    <div id="info"></div>
+  </main>
+
+  <footer class="site-footer">
+    <span>&copy; 2026 Bowie Luckie</span>
+    <span class="dot">·</span>
+    <span>MIT licensed</span>
+    <span class="spacer"></span>
+    <a class="gh" href="https://github.com/BowLuckie" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      @BowLuckie
+    </a>
+    <span class="dot">·</span>
+    <a href="https://github.com/BowLuckie/shark" target="_blank" rel="noopener">source</a>
+  </footer>
+
   <script>
     (function () {
       // show current save status
@@ -101,6 +132,7 @@
         if (e.ctrlKey || e.metaKey || e.altKey) return;
         if (e.key === "1" || e.key === "Enter") location.href = "game.html";
         if (e.key === "2") location.href = "saves.html";
+        if (e.key === "3") location.href = "about.html";
       });
       document.getElementById("play").focus();
     })();

@@ -6,61 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Save manager</title>
   <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
   <style>
-    :root {
-      --bg: #282828;
-      --fg: #ebdbb2;
-      --mut: #a89984;
-      --pan: #3c3836;
-      --y: #fabd2f;
-      --o: #fe8019;
-      --r: #fb4934;
-      --g: #b8bb26;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font: 14px/1.5 monospace;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-
-    h1 {
-      color: var(--y);
-      font-weight: normal;
-      letter-spacing: .1em;
-    }
-
-    h2 {
-      color: var(--o);
-      font-weight: normal;
-      margin-top: 1.5rem;
-    }
-
-    section {
-      background: var(--pan);
-      padding: .5rem 1rem 1rem;
-      border-radius: 4px;
-    }
-
     button,
     input[type=text] {
       background: var(--bg);
       color: var(--fg);
       border: 1px solid var(--mut);
-      border-radius: 3px;
+      border-radius: 4px;
       padding: .3em .7em;
-      font: inherit;
     }
 
     button {
       cursor: pointer;
     }
 
-    button:hover {
+    button:hover,
+    button:focus-visible {
       border-color: var(--o);
+      color: var(--o);
+      outline: none;
     }
 
     textarea {
@@ -70,7 +38,7 @@
       background: #1d2021;
       color: var(--fg);
       border: 1px solid var(--mut);
-      font: 13px/1.4 monospace;
+      border-radius: 4px;
     }
 
     .row {
@@ -95,20 +63,29 @@
       color: var(--y);
     }
 
-    a {
-      color: var(--o);
+    h2:first-of-type {
+      margin-top: 1rem;
     }
   </style>
 </head>
 
-<body>
+<body class="page-wide">
+  <header class="site-header">
+    <nav class="site-nav">
+      <a class="brand" href="./">shrek neighbor</a>
+      <a href="game.html">play</a>
+      <a href="saves.html" aria-current="page">saves</a>
+      <a href="about.html">about</a>
+    </nav>
+  </header>
+
   <h1>Save manager</h1>
-  <p><a href="./">&larr; Back to game</a></p>
+  <p class="sub">Named slots, import, export and editing, all kept in your browser.</p>
   <p class="warn">Close any other open game tabs first, or the game may overwrite your changes.</p>
   <div id="msg"></div>
 
   <h2>Slots</h2>
-  <section>
+  <section class="panel">
     <div id="slots"></div>
     <div class="row">
       <input type="text" id="slotname" placeholder="slot name">
@@ -119,7 +96,7 @@
   </section>
 
   <h2>Current save</h2>
-  <section>
+  <section class="panel">
     <div class="row">
       <button id="export">Export current</button>
       <button id="apply">Apply edits</button>
@@ -238,6 +215,19 @@
       render();
     })();
   </script>
+
+  <footer class="site-footer">
+    <span>&copy; 2026 Bowie Luckie</span>
+    <span class="dot">·</span>
+    <span>MIT licensed</span>
+    <span class="spacer"></span>
+    <a class="gh" href="https://github.com/BowLuckie" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      @BowLuckie
+    </a>
+    <span class="dot">·</span>
+    <a href="https://github.com/BowLuckie/shark" target="_blank" rel="noopener">source</a>
+  </footer>
 </body>
 
 </html>

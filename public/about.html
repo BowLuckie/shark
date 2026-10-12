@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+
+<body class="page">
+  <header class="site-header">
+    <nav class="site-nav">
+      <a class="brand" href="./">shrek neighbor</a>
+      <a href="game.html">play</a>
+      <a href="saves.html">saves</a>
+      <a href="about.html" aria-current="page">about</a>
+    </nav>
+  </header>
+
+  <h1>About</h1>
+  <p class="sub">A small wrapper around a Unity WebGL game, plus a save manager.</p>
+
+  <h2>About Shrek: My Neighbor</h2>
+  <p>
+    Shrek: My Neighbor is a free game by the Russian studio
+    <a href="https://t.me/AnegelatorGames" rel="noopener">Anegelator Games</a>.
+    It is one of several Shrek spinoffs they have made, and they play much alike.
+    The mechanics and the antagonist are modelled on the 2017 indie game
+    Hello Neighbor.
+  </p>
+
+  <h2>How to play</h2>
+  <p>
+    Shrek has captured your dog. You climb through his treehouse mansion, which is
+    full of traps and puzzles, collecting the items you need to get further. Free
+    the dog and escape town.
+  </p>
+  <p>
+    Movement is WASD. The other controls are:
+  </p>
+  <ul>
+    <li><code>E</code> interact</li>
+    <li><code>F</code> secondary interaction</li>
+    <li><code>G</code> drop item</li>
+    <li><code>R</code> swap items</li>
+    <li><code>Space</code> jump</li>
+    <li><code>C</code> crouch</li>
+  </ul>
+  <p>
+    A legend at the bottom of the screen shows the controls at all times.
+  </p>
+
+  <h2>About Shark Launcher and save manager</h2>
+  <p>
+    The original page for this game was built for an ad-supported portal and
+    depended on that portal's SDK. This is a stripped-down replacement for that
+    page. It loads the same game, answers the SDK calls locally, and leaves out
+    the ad popup.
+  </p>
+
+  <h2>What it does</h2>
+  <ul>
+    <li>Loads the game builds from a CDN, pinned to one commit so the files never change under it.</li>
+    <li>Provides a local stand-in for the platform SDK, so the game starts without the portal.</li>
+    <li>Removes the page's ad overlay, and sets the game's own ad-free flag in your save on load.</li>
+    <li>Includes a save manager for named slots, import, export and editing.</li>
+  </ul>
+
+  <h2>What it doesn't do</h2>
+  <ul>
+    <li>It does not host the game. No game files are in this repository.</li>
+    <li>It does not change the game's code or assets. Everything in-game is as the developer made it.</li>
+    <li>There is no cloud sync, account or leaderboard. Those calls are answered with empty results.</li>
+  </ul>
+
+  <h2>Where your save is</h2>
+  <p>
+    In your browser's <code>localStorage</code>, for this site only. It is not
+    uploaded anywhere. Each visitor has their own, and there is nothing shared.
+  </p>
+  <p>
+    Clearing site data for this domain deletes it, and so does a private window
+    closing. The save manager's export button writes a file you can keep. That
+    file is the only real backup.
+  </p>
+  <p>
+    be warned that the "slots" provided by the save editor store a save file as it was at one point in time
+    so if you are juggling multiple saves, you will have to frequently refresh and reload edits, and keep and
+    maintain backups as you play.
+  </p>
+
+  <h2>Credits and ownership</h2>
+  <p>
+    The game belongs to its developer and is not affiliated with this project.
+    The Unity runtime belongs to Unity Technologies. The wrapper and save manager
+    are the only original parts here.
+  </p>
+  <h2>Privacy</h2>
+  <p>
+    This site has no analytics, cookies, accounts or tracking, and I don't
+    collect anything from visitors. Your save is stored in your browser's
+    <code>localStorage</code> and never leaves your device.
+  </p>
+  <p>
+    The page is hosted on GitHub Pages and the game files load from jsDelivr.
+    Both can see your IP address as a normal part of serving a web page, and are
+    governed by their own privacy policies.
+  </p>
+
+  <h2>Legal</h2>
+  <p>
+    Shrek: My Neighbor belongs to Anegelator Games and Unity belongs to Unity
+    Technologies. This project is not affiliated with or endorsed by either.
+    No game files are hosted here. The wrapper and save manager are &copy; 2026
+    Bowie Luckie, released under the MIT license.
+  </p>
+  <p>
+    Rights holders can contact me at BowLuckie@gmail.com
+  </p>
+
+  <footer class="site-footer">
+    <span>&copy; 2026 Bowie Luckie</span>
+    <span class="dot">·</span>
+    <span>MIT licensed</span>
+    <span class="spacer"></span>
+    <a class="gh" href="https://github.com/BowLuckie" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path
+          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+      </svg>
+      @BowLuckie
+    </a>
+    <span class="dot">·</span>
+    <a href="https://github.com/BowLuckie/shark" target="_blank" rel="noopener">source</a>
+  </footer>
+</body>
+
+</html>

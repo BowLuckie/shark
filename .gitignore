@@ -1,3 +1,9 @@
 game-save*
 *.bak*.html
 1.xml
+
+release
+build
+
+*.json
+*.bak

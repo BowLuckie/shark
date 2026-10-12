@@ -23,7 +23,7 @@
     #load-log {
       position: fixed;
       left: 50%;
-      bottom: 3vh;
+      bottom: 3.5rem;
       transform: translateX(-50%);
       width: min(94vw, 900px);
       height: 35vh;
@@ -34,7 +34,7 @@
       background: #1d2021;
       border: 1px solid #3c3836;
       border-radius: 4px;
-      font: 13px/1.4 monospace;
+      font: 400 13px/1.4 var(--font-mono);
       color: #a89984;
       z-index: 10;
     }
@@ -125,6 +125,10 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/ertemr33/heyenarge@1ba676d/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="site.css" />
   <style>
     canvas:focus {
       outline: none;
@@ -166,7 +170,7 @@
     #loading-cover {
       background: #282828 !important;
       color: #ebdbb2;
-      font-family: monospace;
+      font-family: var(--font-mono);
     }
 
     #unity-logo {
@@ -196,11 +200,56 @@
       background: #fe8019 !important;
     }
   </style>
+  <style>
+    /* Site chrome floating over the Unity canvas */
+    .site-header.overlay,
+    .site-footer.overlay {
+      position: fixed;
+      left: 0;
+      right: 0;
+      margin: 0;
+      padding: .5rem 1rem;
+      z-index: 30;
+      pointer-events: none;
+      backdrop-filter: blur(6px);
+      transition: opacity .3s ease;
+    }
+
+    .site-header.overlay {
+      top: 0;
+      background: linear-gradient(rgba(40, 40, 40, .92), rgba(40, 40, 40, .5));
+    }
+
+    .site-footer.overlay {
+      bottom: 0;
+      background: linear-gradient(rgba(40, 40, 40, .5), rgba(40, 40, 40, .92));
+    }
+
+    .site-header.overlay a,
+    .site-footer.overlay a {
+      pointer-events: auto;
+    }
+
+    body.is-fullscreen .site-header.overlay,
+    body.is-fullscreen .site-footer.overlay {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
   <link rel="icon" href="data:,">
   <title>Shrek Neighbor</title>
 </head>
 
 <body class="dark">
+  <header class="site-header overlay">
+    <nav class="site-nav">
+      <a class="brand" href="./">shrek neighbor</a>
+      <a href="game.html" aria-current="page">play</a>
+      <a href="saves.html">saves</a>
+      <a href="about.html">about</a>
+    </nav>
+  </header>
+
   <div id="unity-container" class="unity-desktop">
     <canvas id="unity-canvas" tabindex="-1"></canvas>
   </div>
@@ -1162,6 +1211,29 @@
         e.preventDefault();
         e.returnValue = "";
       });
+    })();
+  </script>
+
+  <footer class="site-footer overlay">
+    <span>&copy; 2026 Bowie Luckie</span>
+    <span class="dot">·</span>
+    <span>MIT licensed</span>
+    <span class="spacer"></span>
+    <a class="gh" href="https://github.com/BowLuckie" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      @BowLuckie
+    </a>
+    <span class="dot">·</span>
+    <a href="https://github.com/BowLuckie/shark" target="_blank" rel="noopener">source</a>
+  </footer>
+
+  <script>
+    (function () {
+      function sync() {
+        document.body.classList.toggle("is-fullscreen", !!document.fullscreenElement);
+      }
+      document.addEventListener("fullscreenchange", sync);
+      sync();
     })();
   </script>
 </body>
