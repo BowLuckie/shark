@@ -1341,11 +1341,16 @@
   pointer-events:none;"></div>
   <div id="vd" style="position:fixed;bottom:8px;right:8px;z-index:50;width:10px;height:10px;
   border-radius:50%;background:#665c54;opacity:.85;"></div>
+  <div id="pt" style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:50;
+  font:bold 28px monospace;color:rgba(235,219,178,.85);text-shadow:0 1px 4px rgba(0,0,0,.9);
+  pointer-events:none;"></div>
+  <div id="vd" style="position:fixed;bottom:8px;right:8px;z-index:50;width:10px;height:10px;
+  border-radius:50%;background:#665c54;opacity:.85;"></div>
   <script>
     (function () {
       var el = document.getElementById("pt"), dot = document.getElementById("vd");
-      var shown = 0, running = false, last = performance.now();
-      var lastSave = null, lastChangeAt = -1e9, interval = 5000;
+      var canvas = document.querySelector("canvas");
+      var shown = 0, running = false, last = performance.now(), lastSave = null, pending = null;
 
       function fmt(s) {
         s = Math.max(0, Math.floor(+s || 0));
@@ -1358,53 +1363,57 @@
         return v;
       }
 
-      // true only if the game advanced playTime recently
+      function cursorStyle() {
+        if (!canvas) canvas = document.querySelector("canvas");
+        return canvas ? getComputedStyle(canvas).cursor : "no canvas";
+      }
+      function mouseHidden() {
+        return !!document.pointerLockElement || cursorStyle() === "none";
+      }
       function active() {
-        if (document.hidden || !document.hasFocus()) return false;
-        return performance.now() - lastChangeAt < Math.max(6000, interval * 2.5);
+        return !document.hidden && document.hasFocus() && mouseHidden();
       }
 
-      function read() {
+      function readSave() {
         var s = null;
         try {s = JSON.parse(localStorage.getItem("savesData"));} catch (e) { }
         var g = s && obj(s.GameSave);
-        if (!g || typeof g.playTime !== "number") {
-          dot.style.background = "#fb4934"; dot.title = "no readable save";
-          return;
-        }
-        dot.style.background = "#b8bb26";
-        dot.title = "playTime " + g.playTime + ", counting: " + active();
-
-        if (g.playTime === lastSave) return;
-        var n = performance.now();
-        var first = lastSave === null;
-        lastSave = g.playTime;
-        if (first) {                       // initial load is not "the game is playing"
-          if (g.playTime > 0) {shown = g.playTime; running = true;}
-          return;
-        }
-        if (n - lastChangeAt < 60000) interval = n - lastChangeAt;
-        lastChangeAt = n;
-
-        var err = g.playTime - shown;
-        if (!running || Math.abs(err) > 5) {shown = g.playTime; running = g.playTime > 0;}
-        else shown += err * 0.15;
+        return (g && typeof g.playTime === "number") ? g.playTime : null;
       }
 
       function tick() {
         var n = performance.now(), dt = (n - last) / 1000;
         last = n;
+
+        var pt = readSave();
+        var hidden = mouseHidden();
+
+        if (pt === null) {
+          dot.style.background = "#fb4934";
+          dot.title = "no readable save";
+        } else {
+          dot.style.background = hidden ? "#b8bb26" : "#fabd2f";
+          dot.title = "playTime " + pt + " | lock: " + !!document.pointerLockElement +
+            " | cursor: " + cursorStyle() + " | counting: " + active();
+
+          // first read: show the saved value, frozen
+          if (!running && pt > 0) {shown = pt; running = true; lastSave = pt;}
+
+          // remember the newest write, but only apply it while the cursor is hidden
+          if (running && pt !== lastSave) {lastSave = pt; pending = pt;}
+          if (running && pending !== null && hidden) {
+            var err = pending - shown;
+            if (Math.abs(err) > 5) shown = pending; else shown += err * 0.15;
+            pending = null;
+          }
+        }
+
         if (running && active()) shown += dt;
         el.textContent = running ? fmt(shown) : "";
       }
 
-      read(); tick();
-      setInterval(read, 1000);
-      setInterval(tick, 200);
-
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "t" && !e.ctrlKey && !e.altKey) el.style.display = el.style.display === "none" ? "" : "none";
-      });
+      tick();
+      setInterval(tick, 100);
     })();
   </script>
   <style>
@@ -1606,6 +1615,23 @@
       ModMenu.add({
         id: "saves", label: "Save manager", type: "button", action: "open",
         apply: function () {location.href = "saves.html";}
+      });
+      ModMenu.add({
+        id: "adtime", label: "Set ad timer to 16666666.66", type: "button", action: "set",
+        apply: function () {
+          var V = 16666666.66;
+          try {
+            var s = JSON.parse(localStorage.getItem("savesData"));
+            s.ADS_OFF = true;
+            s.OFF_ADS_TIME = V;
+            s.idSave = (+s.idSave || 0) + 1;      // the game prefers the higher id
+            var str = JSON.stringify(s);
+            localStorage.setItem("modmenu:adtime", String(V));
+            localStorage.setItem("savesData", str);
+            localStorage.setItem("yg_saves", JSON.stringify({saves: [str]}));
+            window.myGameInstance.SendMessage("YandexGame", "METHOD", str);
+          } catch (e) {alert("Failed: " + e.message);}
+        }
       });
       ModMenu.add({
         id: "home", label: "Main menu", type: "button", action: "go",
