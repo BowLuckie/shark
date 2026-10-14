@@ -1345,10 +1345,10 @@
   font:bold 28px monospace;color:rgba(235,219,178,.85);text-shadow:0 1px 4px rgba(0,0,0,.9);
   pointer-events:none;"></div>
   <div id="vd" style="position:fixed;bottom:8px;right:8px;z-index:50;width:10px;height:10px;
-  border-radius:50%;background:#665c54;opacity:.85;"></div>
+  border-radius:50%;background:#b8bb26;opacity:.85;"></div>
   <script>
     (function () {
-      var el = document.getElementById("pt"), dot = document.getElementById("vd");
+      var el = document.getElementById("pt");
       var canvas = document.querySelector("canvas");
       var shown = 0, running = false, last = performance.now(), lastSave = null, pending = null;
 
@@ -1388,24 +1388,15 @@
         var pt = readSave();
         var hidden = mouseHidden();
 
-        if (pt === null) {
-          dot.style.background = "#fb4934";
-          dot.title = "no readable save";
-        } else {
-          dot.style.background = hidden ? "#b8bb26" : "#fabd2f";
-          dot.title = "playTime " + pt + " | lock: " + !!document.pointerLockElement +
-            " | cursor: " + cursorStyle() + " | counting: " + active();
+        // first read: show the saved value, frozen
+        if (!running && pt > 0) {shown = pt; running = true; lastSave = pt;}
 
-          // first read: show the saved value, frozen
-          if (!running && pt > 0) {shown = pt; running = true; lastSave = pt;}
-
-          // remember the newest write, but only apply it while the cursor is hidden
-          if (running && pt !== lastSave) {lastSave = pt; pending = pt;}
-          if (running && pending !== null && hidden) {
-            var err = pending - shown;
-            if (Math.abs(err) > 5) shown = pending; else shown += err * 0.15;
-            pending = null;
-          }
+        // remember the newest write, but only apply it while the cursor is hidden
+        if (running && pt !== lastSave) {lastSave = pt; pending = pt;}
+        if (running && pending !== null && hidden) {
+          var err = pending - shown;
+          if (Math.abs(err) > 5) shown = pending; else shown += err * 0.15;
+          pending = null;
         }
 
         if (running && active()) shown += dt;
