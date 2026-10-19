@@ -1,3 +1,3 @@
-[play here](bowluckie.github.io/shark/public/)
+[play here](https://bowluckie.github.io/shark/public/)
 
 please submit pull requests
