@@ -247,7 +247,7 @@
       pointer-events: none;
     }
   </style>
-  <link rel="icon" href="data:,">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <title>Shrek Neighbor</title>
 </head>
 
@@ -1411,7 +1411,7 @@
     #mm-btn {
       position: fixed;
       left: 10px;
-      bottom: 10px;
+      bottom: 70%;
       z-index: 90;
       width: 38px;
       height: 38px;
@@ -1630,6 +1630,58 @@
       });
     })();
   </script>
+  <div id="sp" style="position:fixed;bottom:34px;left:10px;z-index:50;display:none;
+  font:bold 16px monospace;color:rgba(235,219,178,.85);text-shadow:0 1px 4px rgba(0,0,0,.9);
+  pointer-events:none;white-space:pre;"></div>
+<script>
+(function () {
+  var el = document.getElementById("sp"), timer = null;
+  var WANT = ["замечен_shrek", "замечен_fion", "замечен_pino"];
+  var SHORT = { "замечен_shrek": "shrek", "замечен_fion": "fion", "замечен_pino": "pino" };
+
+  function parse(v) {
+    if (typeof v === "string") { try { return JSON.parse(v); } catch (e) { return v; } }
+    return v;
+  }
+
+  function findStats(o, depth) {
+    o = parse(o);
+    if (!o || typeof o !== "object" || depth > 5) return null;
+    if (Array.isArray(o)) {
+      if (o.length && o[0] && o[0].StatNameUnicode !== undefined) return o;
+      for (var i = 0; i < o.length; i++) { var r = findStats(o[i], depth + 1); if (r) return r; }
+      return null;
+    }
+    if (o.Statistics) { var s = findStats(o.Statistics, depth + 1); if (s) return s; }
+    for (var k in o) { var r2 = findStats(o[k], depth + 1); if (r2) return r2; }
+    return null;
+  }
+
+  function update() {
+    var save = null, stats = null;
+    try { save = JSON.parse(localStorage.getItem("savesData")); } catch (e) {}
+    if (save) stats = findStats(save, 0);
+    if (!stats) { el.textContent = "spotted 0"; return; }
+    var by = {}, total = 0;
+    stats.forEach(function (s) { by[s.StatNameUnicode] = +s.Number || 0; });
+    var parts = WANT.map(function (n) { var v = by[n] || 0; total += v; return SHORT[n] + " " + v; });
+    el.textContent = "spotted  " + total;
+    if (total > 0) {
+      el.style.color = "#fb4934"
+    } else {
+      el.style.color = "#ffffff"
+    }
+  }
+
+  ModMenu.add({ id: "spotted", label: "Spotted counter", type: "toggle", def: false,
+    apply: function (on) {
+      clearInterval(timer);
+      el.style.display = on ? "" : "none";
+      if (on) { update(); timer = setInterval(update, 1000); }
+      
+    } });
+})();
+</script>
 </body>
 
 </html>
