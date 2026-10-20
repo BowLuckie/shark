@@ -178,8 +178,10 @@
 
     #load-hint {
       color: #fe8019;
-      font-size: 1em;
-      margin-top: .75em;
+      font-size: 1.25em;
+      font-weight: bold;
+      letter-spacing: .05em;
+      margin-top: .85em;
     }
 
     #unity-progress-bar-empty {
@@ -1821,6 +1823,14 @@
           if (it.type !== "button") {try {it.apply(value(it));} catch (e) { } }   // restore saved value on load
           render();
         },
+        // set an item's value from code (used by "reset" buttons), then redraw
+        set: function (id, v) {
+          var it = items.filter(function (x) {return x.id === id;})[0];
+          if (!it) return;
+          saved[id] = v; persist();
+          try {it.apply(v);} catch (e) { }
+          render();
+        },
         open: function () {if (document.exitPointerLock) document.exitPointerLock(); root.classList.add("open");},
         close: function () {root.classList.remove("open");},
         toggle: function () {root.classList.contains("open") ? this.close() : this.open();}
@@ -2137,6 +2147,10 @@
   ModMenu.add({
     id: "inputColor", label: "Input color", type: "color", tab: "hud", section: "input", def: "#ebdbb2",
     apply: function (v) {il.style.setProperty("--ic", v);}
+  });
+  ModMenu.add({
+    id: "resetInputColor", label: "Reset color", type: "button", tab: "hud", section: "input",
+    action: "reset", apply: function () {ModMenu.set("inputColor", "#ebdbb2");}
   });
 })();
 </script>
