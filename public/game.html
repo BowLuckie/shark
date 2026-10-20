@@ -176,6 +176,12 @@
       margin-bottom: .5em;
     }
 
+    #load-hint {
+      color: #fe8019;
+      font-size: 1em;
+      margin-top: .75em;
+    }
+
     #unity-progress-bar-empty {
       background: #3c3836 !important;
       border-radius: 4px;
@@ -269,6 +275,7 @@
       <div id="unity-logo">
         <h1 id="game-title">Shrek Neighbor</h1>
         <div id="load-pct"></div>
+        <div id="load-hint">press Shift+M to open the mod menu</div>
       </div>
       <div id="unity-progress-bar-empty" style="display: none;">
         <div id="unity-progress-bar-full"></div>
@@ -1559,6 +1566,16 @@
       accent-color: #fe8019;
     }
 
+    #mm-panel input[type=color] {
+      width: 52px;
+      height: 28px;
+      padding: 2px;
+      background: #3c3836;
+      border: 1px solid #a89984;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
     #mm-hint {
       color: #a89984;
       font-size: 12px;
@@ -1594,7 +1611,8 @@
 
     body.hud-moving #pt,
     body.hud-moving #vd,
-    body.hud-moving #sp {
+    body.hud-moving #sp,
+    body.hud-moving #il {
       pointer-events: auto !important;
       cursor: grab;
       touch-action: none;
@@ -1605,8 +1623,15 @@
 
     body.hud-moving #pt:active,
     body.hud-moving #vd:active,
-    body.hud-moving #sp:active {
+    body.hud-moving #sp:active,
+    body.hud-moving #il:active {
       cursor: grabbing;
+    }
+
+    /* the key rows/boxes are decoration: clicks must reach #il itself so it drags */
+    body.hud-moving #il .r,
+    body.hud-moving #il .k {
+      pointer-events: none !important;
     }
 
     /* fat hit area for the 10px save dot, without changing its layout size */
@@ -1650,6 +1675,55 @@
 
     .mm-h:hover {
       background: #fe8019;
+    }
+
+    /* input display: wasd / e / lmb key boxes */
+    #il {
+      font: bold 14px/1 monospace;
+      letter-spacing: .05em;
+      color: var(--ic, #ebdbb2);
+    }
+
+    #il .r {
+      display: flex;
+      gap: 3px;
+      margin-top: 3px;
+    }
+
+    #il .r:first-child {
+      margin-top: 0;
+    }
+
+    #il .k {
+      min-width: 1.7em;
+      height: 1.7em;
+      padding: 0 .3em;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--ic, #ebdbb2);
+      border-radius: 3px;
+      opacity: .38;
+    }
+
+    #il .k.ph {          /* invisible spacer keeps W centred over S */
+      border: none;
+      opacity: 0;
+    }
+
+    #il .k.gap {
+      margin-left: .7em;
+    }
+
+    #il .k.wide {        /* space bar: stretched across the row */
+      min-width: 5.4em;
+    }
+
+    #il .k.on {
+      opacity: 1;
+      background: var(--ic, #ebdbb2);
+      color: #282828;
     }
   </style>
   <button id="mm-btn" aria-label="Mod menu">M</button>
@@ -1729,6 +1803,9 @@
           } else if (it.type === "range") {
             c = document.createElement("input"); c.type = "range"; c.min = it.min; c.max = it.max; c.value = value(it);
             c.oninput = function () {saved[it.id] = +c.value; persist(); it.apply(+c.value);};
+          } else if (it.type === "color") {
+            c = document.createElement("input"); c.type = "color"; c.value = value(it);
+            c.oninput = function () {saved[it.id] = c.value; persist(); it.apply(c.value);};
           } else {
             c = document.createElement("button"); c.textContent = it.action || "run";
             c.onclick = function () {it.apply();};
@@ -1766,7 +1843,7 @@
       var pt = document.getElementById("pt"), vd = document.getElementById("vd");
 
       // ---- move / resize HUD mode ----
-      var POSKEY = "modmenu:hudpos", MOVABLE = ["pt", "vd", "sp"], HS = 14;
+      var POSKEY = "modmenu:hudpos", MOVABLE = ["pt", "vd", "sp", "il"], HS = 14;
       var pos = {}, moving = false, originals = {}, handles = {};
       try {pos = JSON.parse(localStorage.getItem(POSKEY)) || {};} catch (e) {}
 
@@ -1870,11 +1947,14 @@
       document.addEventListener("pointerdown", function (e) {
         if (!moving) return;
         var el = null, sizing = false;
-        if (MOVABLE.indexOf(e.target.id) >= 0) {
-          el = e.target;
-        } else if (e.target.classList && e.target.classList.contains("mm-h")) {
+        if (e.target.classList && e.target.classList.contains("mm-h")) {
           el = document.getElementById(e.target.getAttribute("data-for"));
           sizing = true;
+        } else {
+          // walk up: hud elements may contain children (the input display's rows/keys)
+          var t = e.target;
+          while (t && t !== document.body && MOVABLE.indexOf(t.id) < 0) t = t.parentNode;
+          if (t && t !== document.body) el = t;
         }
         if (!el) return;
         e.preventDefault(); e.stopPropagation();
@@ -2016,6 +2096,50 @@
   <div id="sp" style="position:fixed;bottom:34px;left:10px;z-index:50;display:none;
   font:bold 16px monospace;color:rgba(235,219,178,.85);text-shadow:0 1px 4px rgba(0,0,0,.9);
   pointer-events:none;white-space:pre;"></div>
+  <div id="il" style="position:fixed;left:10px;bottom:10px;z-index:50;pointer-events:none;display:none;">
+    <div class="r"><span class="k ph"></span><span class="k" data-k="KeyW">W</span></div>
+    <div class="r"><span class="k" data-k="KeyA">A</span><span class="k" data-k="KeyS">S</span><span class="k" data-k="KeyD">D</span></div>
+    <div class="r"><span class="k gap" data-k="KeyE">E</span><span class="k" data-k="KeyC">C</span></div>
+    <div class="r"><span class="k wide" data-k="Space">SPACE</span></div>
+  </div>
+<script>
+(function () {
+  var il = document.getElementById("il");
+  var CODES = ["KeyW", "KeyA", "KeyS", "KeyD", "KeyE", "KeyC", "Space"];
+  var spans = il.querySelectorAll(".k"), active = {};
+
+  function paint() {
+    for (var i = 0; i < spans.length; i++) {
+      var k = spans[i].getAttribute("data-k");
+      if (k) spans[i].classList.toggle("on", !!active[k]);
+    }
+  }
+  function set(k, on) {
+    if (!k || !!active[k] === on) return;
+    active[k] = on;
+    paint();
+  }
+  function clear() {active = {}; paint();}
+
+  // observe only: never preventDefault/stopPropagation, the game still needs these keys
+  window.addEventListener("keydown", function (e) {
+    if (CODES.indexOf(e.code) >= 0) set(e.code, true);
+  });
+  window.addEventListener("keyup", function (e) {
+    if (CODES.indexOf(e.code) >= 0) set(e.code, false);
+  });
+  window.addEventListener("blur", clear);   // no stuck keys after alt-tab
+
+  ModMenu.add({
+    id: "input", label: "Input display", type: "toggle", tab: "hud", section: "input", def: true,
+    apply: function (on) {il.style.display = on ? "" : "none";}
+  });
+  ModMenu.add({
+    id: "inputColor", label: "Input color", type: "color", tab: "hud", section: "input", def: "#ebdbb2",
+    apply: function (v) {il.style.setProperty("--ic", v);}
+  });
+})();
+</script>
 <script>
 (function () {
   var el = document.getElementById("sp"), timer = null;
@@ -2072,5 +2196,5 @@
 })();
 </script>
 </body>
-
 </html>
+
