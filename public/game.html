@@ -1340,12 +1340,7 @@
   font:bold 28px monospace;color:rgba(235,219,178,.85);text-shadow:0 1px 4px rgba(0,0,0,.9);
   pointer-events:none;"></div>
   <div id="vd" style="position:fixed;bottom:8px;right:8px;z-index:50;width:10px;height:10px;
-  border-radius:50%;background:#665c54;opacity:.85;"></div>
-  <div id="pt" style="position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:50;
-  font:bold 28px monospace;color:rgba(235,219,178,.85);text-shadow:0 1px 4px rgba(0,0,0,.9);
-  pointer-events:none;"></div>
-  <div id="vd" style="position:fixed;bottom:8px;right:8px;z-index:50;width:10px;height:10px;
-  border-radius:50%;background:#b8bb26;opacity:.85;"></div>
+  border-radius:50%;background:#39ff14;opacity:1;"></div>
   <script>
     (function () {
       var el = document.getElementById("pt");
@@ -1437,7 +1432,7 @@
       background: rgba(0, 0, 0, .55);
       align-items: center;
       justify-content: center;
-      font: 14px/1.5 monospace;
+      font: 16px/1.5 monospace;
       color: #ebdbb2;
     }
 
@@ -1448,24 +1443,57 @@
     #mm-panel {
       background: #282828;
       border: 1px solid #a89984;
-      border-radius: 4px;
-      width: min(92vw, 380px);
-      max-height: 85vh;
+      border-radius: 6px;
+      width: min(94vw, 560px);
+      max-height: 88vh;
       overflow-y: auto;
-      padding: .75rem 1rem 1rem;
+      padding: 1rem 1.25rem 1.25rem;
+      box-shadow: 0 14px 48px rgba(0, 0, 0, .6);
     }
 
     #mm-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: .5rem;
+      margin-bottom: .75rem;
     }
 
     #mm-head b {
       color: #fabd2f;
       font-weight: normal;
       letter-spacing: .1em;
+      font-size: 18px;
+    }
+
+    #mm-tabs {
+      display: flex;
+      gap: .5rem;
+      margin-bottom: .5rem;
+      padding-bottom: .75rem;
+      border-bottom: 1px solid #3c3836;
+    }
+
+    #mm-tabs .tab {
+      flex: 1;
+      background: #3c3836;
+      color: #a89984;
+      border: 1px solid #3c3836;
+      border-radius: 4px;
+      padding: .5em .5em;
+      font: inherit;
+      letter-spacing: .06em;
+      cursor: pointer;
+    }
+
+    #mm-tabs .tab:hover {
+      color: #ebdbb2;
+      border-color: #a89984;
+    }
+
+    #mm-tabs .tab.on {
+      color: #fabd2f;
+      border-color: #fe8019;
+      background: #32302f;
     }
 
     #mm-panel .row {
@@ -1473,8 +1501,37 @@
       justify-content: space-between;
       align-items: center;
       gap: .75rem;
-      padding: .35rem 0;
+      padding: .55rem 0;
+    }
+
+    #mm-panel .row + .row {
       border-top: 1px solid #3c3836;
+    }
+
+    #mm-panel .sec {
+      color: #a89984;
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin: .9rem 0 0;
+      padding-bottom: .25rem;
+      border-bottom: 1px solid #3c3836;
+    }
+
+    #mm-panel .sec:first-child {
+      margin-top: 0;
+    }
+
+    #mm-panel .soon {
+      border: 1px dashed #504945;
+      border-radius: 4px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: #a89984;
+      font-size: 18px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      margin-top: .5rem;
     }
 
     #mm-panel button {
@@ -1492,13 +1549,13 @@
     }
 
     #mm-panel input[type=range] {
-      width: 45%;
+      width: 50%;
       accent-color: #fe8019;
     }
 
     #mm-panel input[type=checkbox] {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       accent-color: #fe8019;
     }
 
@@ -1507,14 +1564,106 @@
       font-size: 12px;
       margin-top: .5rem;
     }
+
+    #mm-movebar {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      z-index: 101;
+      align-items: center;
+      gap: .75rem;
+      background: #282828;
+      border: 1px solid #fe8019;
+      border-radius: 4px;
+      padding: .4rem .5rem .4rem .9rem;
+      font: 14px/1.4 monospace;
+      color: #ebdbb2;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .55);
+    }
+
+    body.hud-moving #mm-movebar {
+      display: flex;
+    }
+
+    body.hud-moving {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body.hud-moving #pt,
+    body.hud-moving #vd,
+    body.hud-moving #sp {
+      pointer-events: auto !important;
+      cursor: grab;
+      touch-action: none;
+      z-index: 95 !important;
+      outline: 1px dashed #fe8019;
+      outline-offset: 4px;
+    }
+
+    body.hud-moving #pt:active,
+    body.hud-moving #vd:active,
+    body.hud-moving #sp:active {
+      cursor: grabbing;
+    }
+
+    /* fat hit area for the 10px save dot, without changing its layout size */
+    body.hud-moving #vd::before {
+      content: "";
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+    }
+
+    #mm-done {
+      background: #fe8019;
+      color: #282828;
+      border: 1px solid #fe8019;
+      border-radius: 3px;
+      padding: .25em 1em;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #mm-done:hover {
+      background: #fabd2f;
+      border-color: #fabd2f;
+    }
+
+    /* resize corner, shown on each movable hud element while reorganizing */
+    .mm-h {
+      position: fixed;
+      display: none;
+      z-index: 96;
+      width: 14px;
+      height: 14px;
+      background: #fabd2f;
+      border: 1px solid #282828;
+      border-radius: 3px;
+      cursor: nwse-resize;
+      touch-action: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .6);
+    }
+
+    .mm-h:hover {
+      background: #fe8019;
+    }
   </style>
   <button id="mm-btn" aria-label="Mod menu">M</button>
   <div id="mm">
     <div id="mm-panel">
       <div id="mm-head"><b>MODS</b><button id="mm-x">close</button></div>
+      <div id="mm-tabs"></div>
       <div id="mm-items"></div>
       <div id="mm-hint">Shift+M or Esc to close</div>
     </div>
+  </div>
+  <div id="mm-movebar">
+    <span>drag to move &middot; corner handle resizes</span>
+    <button id="mm-done" type="button">done</button>
   </div>
   <script>
     (function () {
@@ -1523,13 +1672,54 @@
       function persist() {try {localStorage.setItem(KEY, JSON.stringify(saved));} catch (e) { } }
 
       var root = document.getElementById("mm"), list = document.getElementById("mm-items"),
-        btn = document.getElementById("mm-btn");
+        tabs = document.getElementById("mm-tabs"), btn = document.getElementById("mm-btn");
+
+      var TABS = [
+        {id: "game", label: "game"},
+        {id: "hud", label: "hud"},
+        {id: "cheats", label: "cheats", soon: true}
+      ];
+      var curTab = TABS.some(function (t) {return t.id === saved.__tab;}) ? saved.__tab : "game";
 
       function value(it) {return saved[it.id] !== undefined ? saved[it.id] : it.def;}
 
+      function drawTabs() {
+        tabs.textContent = "";
+        TABS.forEach(function (t) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "tab" + (t.id === curTab ? " on" : "");
+          b.textContent = t.label;
+          b.onclick = function () {curTab = t.id; saved.__tab = t.id; persist(); render();};
+          tabs.appendChild(b);
+        });
+      }
+
       function render() {
+        drawTabs();
         list.textContent = "";
+        var cur = TABS.filter(function (t) {return t.id === curTab;})[0] || TABS[0];
+
+        if (cur.soon) {
+          var soon = document.createElement("div");
+          soon.className = "soon";
+          soon.textContent = "coming soon";
+          list.appendChild(soon);
+          return;
+        }
+
+        var sec = "";
         items.forEach(function (it) {
+          if ((it.tab || "game") !== curTab) return;
+          if ((it.section || "") !== sec) {
+            sec = it.section || "";
+            if (sec) {
+              var h = document.createElement("div");
+              h.className = "sec";
+              h.textContent = sec;
+              list.appendChild(h);
+            }
+          }
           var row = document.createElement("div"); row.className = "row";
           var lab = document.createElement("span"); lab.textContent = it.label; row.appendChild(lab);
           var c;
@@ -1548,6 +1738,7 @@
       }
 
       window.ModMenu = {
+        render: render,
         add: function (it) {
           items.push(it);
           if (it.type !== "button") {try {it.apply(value(it));} catch (e) { } }   // restore saved value on load
@@ -1562,7 +1753,8 @@
       window.addEventListener("keydown", function (e) {
         if (e.shiftKey && e.code === "KeyM" && !e.ctrlKey && !e.altKey) {
           e.preventDefault(); e.stopPropagation(); ModMenu.toggle();
-        } else if (e.key === "Escape" && root.classList.contains("open")) {
+        } else if (e.key === "Escape" && (moving || root.classList.contains("open"))) {
+          if (moving) {setMoving(false); moveItem.action = "start"; ModMenu.render();}
           ModMenu.close();
         }
       }, true);
@@ -1573,25 +1765,216 @@
       // ---- built-in entries ----
       var pt = document.getElementById("pt"), vd = document.getElementById("vd");
 
+      // ---- move / resize HUD mode ----
+      var POSKEY = "modmenu:hudpos", MOVABLE = ["pt", "vd", "sp"], HS = 14;
+      var pos = {}, moving = false, originals = {}, handles = {};
+      try {pos = JSON.parse(localStorage.getItem(POSKEY)) || {};} catch (e) {}
+
+      function place(el, x, y) {
+        el.style.left = Math.round(x) + "px";
+        el.style.top = Math.round(y) + "px";
+        el.style.right = "auto";
+        el.style.bottom = "auto";
+        el.style.transform = "none";
+      }
+
+      function clampN(v, lo, hi) {return Math.max(lo, Math.min(v, hi));}
+
+      function savePos() {try {localStorage.setItem(POSKEY, JSON.stringify(pos));} catch (e) {} }
+
+      // keep the markup's own style attribute so "reset layout" can put it back
+      function remember(el) {
+        if (originals[el.id] === undefined) originals[el.id] = el.getAttribute("style") || "";
+      }
+
+      function restorePos() {
+        MOVABLE.forEach(function (id) {
+          var el = document.getElementById(id), p = pos[id];
+          if (!el) return;
+          remember(el);
+          if (!p) return;
+          if (p.x !== undefined && p.y !== undefined) {
+            place(el, clampN(+p.x, 0, innerWidth - 4), clampN(+p.y, 0, innerHeight - 4));
+          }
+          if (id === "vd") {
+            if (p.w) {el.style.width = Math.round(p.w) + "px"; el.style.height = Math.round(p.h || p.w) + "px";}
+          } else if (p.fs) {
+            el.style.fontSize = Math.round(p.fs) + "px";
+          }
+        });
+      }
+
+      // one handle per movable element, parked at its bottom-right corner
+      MOVABLE.forEach(function (id) {
+        var h = document.createElement("div");
+        h.className = "mm-h";
+        h.setAttribute("data-for", id);
+        document.body.appendChild(h);
+        handles[id] = h;
+      });
+
+      function tickHandles() {
+        if (!moving) return;
+        MOVABLE.forEach(function (id) {
+          var el = document.getElementById(id), h = handles[id];
+          if (!el || !h) return;
+          var r = el.getBoundingClientRect();
+          var vis = r.width > 0 && r.height > 0;
+          h.style.display = vis ? "block" : "none";
+          if (vis) {
+            h.style.left = Math.min(r.right - HS / 2, innerWidth - HS) + "px";
+            h.style.top = Math.min(r.bottom - HS / 2, innerHeight - HS) + "px";
+          }
+        });
+        requestAnimationFrame(tickHandles);
+      }
+
+      restorePos();
+      // #sp is markup further down the page, so re-run once everything is parsed
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", restorePos);
+
+      function setMoving(on) {
+        moving = on;
+        document.body.classList.toggle("hud-moving", on);
+        if (on) {
+          requestAnimationFrame(tickHandles);
+        } else {
+          MOVABLE.forEach(function (id) {if (handles[id]) handles[id].style.display = "";});
+          savePos();
+        }
+      }
+
+      // keeps the size sliders and the corner handle telling the same story
+      ModMenu.hudSize = function (id, v) {
+        var p = pos[id] || (pos[id] = {});
+        if (id === "vd") {p.w = +v; p.h = +v;} else {p.fs = +v;}
+        savePos();
+      };
+
+      function resetHud() {
+        MOVABLE.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el && originals[id] !== undefined) el.setAttribute("style", originals[id]);
+        });
+        pos = {};
+        saved.timerSize = 28;
+        saved.spottedSize = 16;
+        items.forEach(function (it) {                       // re-apply sizes/toggles from saved
+          if (it.type !== "button") {try {it.apply(value(it));} catch (e) { } }
+        });
+        persist(); savePos();
+        ModMenu.render();
+      }
+
+      // capture phase so the Unity canvas never sees the drag
+      document.addEventListener("pointerdown", function (e) {
+        if (!moving) return;
+        var el = null, sizing = false;
+        if (MOVABLE.indexOf(e.target.id) >= 0) {
+          el = e.target;
+        } else if (e.target.classList && e.target.classList.contains("mm-h")) {
+          el = document.getElementById(e.target.getAttribute("data-for"));
+          sizing = true;
+        }
+        if (!el) return;
+        e.preventDefault(); e.stopPropagation();
+        try {el.setPointerCapture(e.pointerId);} catch (err) {}
+        if (sizing) startResize(el, e); else startMove(el, e);
+      }, true);
+
+      function startMove(el, e) {
+        var r = el.getBoundingClientRect(), ox = r.left - e.clientX, oy = r.top - e.clientY;
+        function move(ev) {
+          var x = clampN(ox + ev.clientX, 0, innerWidth - r.width);
+          var y = clampN(oy + ev.clientY, 0, innerHeight - r.height);
+          place(el, x, y);
+          var p = pos[el.id] || (pos[el.id] = {});
+          p.x = x; p.y = y;
+        }
+        function up() {
+          document.removeEventListener("pointermove", move);
+          document.removeEventListener("pointerup", up);
+          document.removeEventListener("pointercancel", up);
+          savePos();
+        }
+        document.addEventListener("pointermove", move);
+        document.addEventListener("pointerup", up);
+        document.addEventListener("pointercancel", up);
+      }
+
+      function startResize(el, e) {
+        var id = el.id;
+        var f0 = parseFloat(getComputedStyle(el).fontSize) || 16;
+        var w0 = el.getBoundingClientRect().width;
+        var x0 = e.clientX, y0 = e.clientY;
+        var p = pos[id] || (pos[id] = {});
+        function move(ev) {
+          var scale = clampN(1 + ((ev.clientX - x0) + (ev.clientY - y0)) / 140, .25, 6);
+          if (id === "vd") {
+            p.w = clampN(Math.round(w0 * scale), 4, 96);
+            p.h = p.w;
+            el.style.width = p.w + "px";
+            el.style.height = p.h + "px";
+          } else {
+            p.fs = clampN(Math.round(f0 * scale), 8, 96);
+            el.style.fontSize = p.fs + "px";
+            if (id === "pt") saved.timerSize = p.fs;
+            if (id === "sp") saved.spottedSize = p.fs;
+          }
+        }
+        function up() {
+          document.removeEventListener("pointermove", move);
+          document.removeEventListener("pointerup", up);
+          document.removeEventListener("pointercancel", up);
+          savePos(); persist();
+          ModMenu.render();   // move the size sliders to match
+        }
+        document.addEventListener("pointermove", move);
+        document.addEventListener("pointerup", up);
+        document.addEventListener("pointercancel", up);
+      }
+
+      var moveItem = {
+        id: "movehud", label: "Move HUD", type: "button", tab: "hud", section: "layout", action: "start",
+        apply: function () {
+          setMoving(!moving);
+          moveItem.action = moving ? "stop" : "start";
+          if (moving) ModMenu.close();     // close so you can see what you're dragging
+          ModMenu.render();
+        }
+      };
+      ModMenu.add(moveItem);
       ModMenu.add({
-        id: "timer", label: "Show timer", type: "toggle", def: true,
+        id: "resethud", label: "Reset layout", type: "button", tab: "hud", section: "layout",
+        action: "reset", apply: resetHud
+      });
+
+      document.getElementById("mm-done").onclick = function () {
+        if (!moving) return;
+        setMoving(false);
+        moveItem.action = "start";
+        ModMenu.render();
+      };
+
+      ModMenu.add({
+        id: "timer", label: "Show timer", type: "toggle", tab: "hud", section: "timer", def: true,
         apply: function (v) {if (pt) pt.style.display = v ? "" : "none";}
       });
       ModMenu.add({
-        id: "timerSize", label: "Timer size", type: "range", min: 12, max: 60, def: 28,
-        apply: function (v) {if (pt) pt.style.fontSize = v + "px";}
+        id: "timerSize", label: "Timer size", type: "range", tab: "hud", section: "timer", min: 12, max: 60, def: 28,
+        apply: function (v) {if (pt) pt.style.fontSize = v + "px"; ModMenu.hudSize("pt", v);}
       });
       ModMenu.add({
-        id: "timerOpacity", label: "Timer opacity", type: "range", min: 20, max: 100, def: 85,
+        id: "timerOpacity", label: "Timer opacity", type: "range", tab: "hud", section: "timer", min: 20, max: 100, def: 85,
         apply: function (v) {if (pt) pt.style.opacity = v / 100;}
       });
       ModMenu.add({
-        id: "dot", label: "Save indicator", type: "toggle", def: true,
+        id: "dot", label: "Save indicator", type: "toggle", tab: "hud", section: "indicator", def: true,
         apply: function (v) {if (vd) vd.style.display = v ? "" : "none";}
       });
 
       ModMenu.add({
-        id: "export", label: "Export save", type: "button", action: "download",
+        id: "export", label: "Export save", type: "button", tab: "game", action: "download",
         apply: function () {
           var cur = localStorage.getItem("savesData");
           if (!cur) return alert("No save to export");
@@ -1604,11 +1987,11 @@
         }
       });
       ModMenu.add({
-        id: "saves", label: "Save manager", type: "button", action: "open",
+        id: "saves", label: "Save manager", type: "button", tab: "game", action: "open",
         apply: function () {location.href = "saves.html";}
       });
       ModMenu.add({
-        id: "adtime", label: "Set ad timer to 16666666.66", type: "button", action: "set",
+        id: "adtime", label: "Reset ad timer (broken)", type: "button", tab: "game", action: "set",
         apply: function () {
           var V = 16666666.66;
           try {
@@ -1625,7 +2008,7 @@
         }
       });
       ModMenu.add({
-        id: "home", label: "Main menu", type: "button", action: "go",
+        id: "home", label: "Main menu", type: "button", tab: "game", action: "go",
         apply: function () {location.href = "./";}
       });
     })();
@@ -1673,13 +2056,19 @@
     }
   }
 
-  ModMenu.add({ id: "spotted", label: "Spotted counter", type: "toggle", def: false,
+  ModMenu.add({ id: "spotted", label: "Spotted counter", type: "toggle", tab: "hud", section: "spotted", def: false,
     apply: function (on) {
       clearInterval(timer);
       el.style.display = on ? "" : "none";
       if (on) { update(); timer = setInterval(update, 1000); }
       
     } });
+  ModMenu.add({ id: "spottedSize", label: "Spotted size", type: "range", tab: "hud", section: "spotted",
+    min: 10, max: 48, def: 16,
+    apply: function (v) { el.style.fontSize = v + "px"; ModMenu.hudSize("sp", v); } });
+  ModMenu.add({ id: "spottedOpacity", label: "Spotted opacity", type: "range", tab: "hud", section: "spotted",
+    min: 20, max: 100, def: 100,
+    apply: function (v) { el.style.opacity = v / 100; } });
 })();
 </script>
 </body>
